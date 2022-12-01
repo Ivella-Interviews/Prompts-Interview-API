@@ -27,8 +27,7 @@ This endpoint fetches all the questions and their associated answers\
 
 ```json
 {
-    "questions":
-    [
+    "questions": [
         {
             "questionID": "8jvtduGXNJu8QAylgjfe",
             "startTime": 1669708800,
@@ -78,7 +77,7 @@ This endpoint is used to post an answer to a question\
 {
     "username": "ericjubber",
     "answer": "My ideal first date is getting ice cream and going on walk on the beach!",
-    "questionID": "8jvtduGXNJu8QAylgjfe
+    "questionID": "8jvtduGXNJu8QAylgjfe"
 }
 ```
 
@@ -112,7 +111,7 @@ This endpoint is used to like an answer to a question\
 {
     "username": "ericjubber",
     "answerID": "yBvsqFM0UbTiNysGVVZS",
-    "questionID": "8jvtduGXNJu8QAylgjfe
+    "questionID": "8jvtduGXNJu8QAylgjfe"
 }
 ```
 
