@@ -1,7 +1,10 @@
 # Prompts API documentation
 
 Base URL: \
-https://us-central1-ivella-372e0.cloudfunctions.net/
+https://us-central1-ivella-372e0.cloudfunctions.net/ 
+
+Notes: \
+All times are returned in epoch time (in seconds) 
   
 # Links:
 * [Fetch Prompts and Answers](#fetch-prompts)
@@ -20,10 +23,7 @@ This endpoint fetches all the questions and their associated answers\
 **Error Codes** : \
 `404 Could not fetch information from database`
 
-**Query Response**
-Note:\
-This is just an example of the response this route would return.\
-Times are returned in epoch time (in seconds)
+**Example Query Response**
 
 ```json
 {
@@ -88,7 +88,6 @@ This endpoint is used to post an answer to a question\
     "answerID": "yBvsqFM0UbTiNysGVVZS",
     "username": "ericjubber",
     "answer": "My ideal first date is getting ice cream and going on walk on the beach!",
-    "questionID": "8jvtduGXNJu8QAylgjfe",
     "time": 1669763132,
     "likes": []
 }
