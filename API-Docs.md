@@ -1,6 +1,9 @@
 # Prompts API documentation
 
-## Links:
+Base URL: \
+https://us-central1-ivella-372e0.cloudfunctions.net/
+  
+# Links:
 * [Fetch Prompts and Answers](#fetch-prompts)
 * [Post Answer](#post-answer)
 * [Like Answer](#like-answer)
