@@ -18,31 +18,31 @@ exports.prompts = functions.https.onRequest(async (request, response) => {
     try {
         console.log("Getting all prompts with answers");
 
-        const questionsRes = await db.collection("questions").get();
+        const promptsRes = await db.collection("prompts").get();
 
         console.log("Successfully fetched prompts with answers, parsing data now...");
 
-        let questionFields = [];
+        let promptFields = [];
         let answerPromises = [];
         
-        questionsRes.docs.forEach((question) => {
-            let questionData = {
-                questionID: question.id,
-                startTime: question.data().startTime._seconds,
-                endTime: question.data().endTime._seconds,
-                prompt: question.data().prompt,
+        promptsRes.docs.forEach((prompt) => {
+            let promptData = {
+                promptID: prompt.id,
+                startTime: prompt.data().startTime._seconds,
+                endTime: prompt.data().endTime._seconds,
+                prompt: prompt.data().prompt,
                 answers: []
             };
 
-            questionFields.push(questionData);
-            answerPromises.push(question.ref.collection('answers').get());
+            promptFields.push(promptData);
+            answerPromises.push(prompt.ref.collection('answers').get());
         });
 
         const answerFields = await Promise.all(answerPromises);
 
         for(let i = 0 ; i < answerFields.length ; i++) {
             answerFields[i].docs.forEach((answer) => {
-                questionFields[i].answers.push({
+                promptFields[i].answers.push({
                     answerID: answer.id,
                     username: answer.data().username,
                     answer: answer.data().answer,
@@ -53,7 +53,7 @@ exports.prompts = functions.https.onRequest(async (request, response) => {
         }
 
         let ret = {
-            questions: questionFields
+            prompts: promptFields
         };
 
         console.log(ret);
@@ -79,11 +79,11 @@ exports.answer = functions.https.onRequest(async (request, response) => {
     try {
         const username = request.body.username;
         const answer = request.body.answer;
-        const questionID = request.body.questionID;
+        const promptID = request.body.promptID;
 
-        console.log("Validating requestion body to insert answer");
+        console.log("Validating response body to insert answer");
 
-        if(username == null || answer == null || questionID == null) {
+        if(username == null || answer == null || promptID == null) {
             const errMessage = "One of more fields are undefined, please check request body: " + JSON.stringify(request.body);
             console.warn(errMessage);
 
@@ -93,7 +93,7 @@ exports.answer = functions.https.onRequest(async (request, response) => {
             return;
         }
 
-        console.log("Body is correct, inserting answer for question", questionID, "for user", username);
+        console.log("Body is correct, inserting answer for prompt", promptID, "for user", username);
 
         const time = new Date();
 
@@ -104,7 +104,7 @@ exports.answer = functions.https.onRequest(async (request, response) => {
             likes: []
         };
 
-        const insertRes = await db.collection('questions').doc(questionID).collection('answers').add(insertParams);
+        const insertRes = await db.collection('prompts').doc(promptID).collection('answers').add(insertParams);
 
         console.log("Success insert! fetching inserted item and returning now.");
 
@@ -139,12 +139,12 @@ exports.answer = functions.https.onRequest(async (request, response) => {
 exports.likeAnswer = functions.https.onRequest(async (request, response) => {
     try {
         const username = request.body.username;
-        const questionID = request.body.questionID;
+        const promptID = request.body.promptID;
         const answerID = request.body.answerID;
 
-        console.log("Validating requestion body to like answer");
+        console.log("Validating response body to like answer");
 
-        if(username == null || questionID == null || answerID == null) {
+        if(username == null || promptID == null || answerID == null) {
             const errMessage = "One of more fields are undefined, please check request body: " + JSON.stringify(request.body);
             console.warn(errMessage);
 
@@ -157,7 +157,7 @@ exports.likeAnswer = functions.https.onRequest(async (request, response) => {
         console.log("Body is correct, updating answer likes for answer", answerID, "with user", username);
 
 
-        const updateRes = await db.collection('questions').doc(questionID).collection('answers').doc(answerID).update({
+        const updateRes = await db.collection('prompts').doc(promptID).collection('answers').doc(answerID).update({
             likes: admin.firestore.FieldValue.arrayUnion(username)
         });
 
@@ -171,6 +171,115 @@ exports.likeAnswer = functions.https.onRequest(async (request, response) => {
 
     } catch (err) {
         console.error("Could not like answer:")
+        console.error(err);
+
+        response.status(404).send({
+            error: err
+        });
+        return;
+    }
+});
+
+
+exports.unlikeAnswer = functions.https.onRequest(async (request, response) => {
+    try {
+        const username = request.body.username;
+        const promptID = request.body.promptID;
+        const answerID = request.body.answerID;
+
+        console.log("Validating response body to unlike answer");
+
+        if(username == null || promptID == null || answerID == null) {
+            const errMessage = "One of more fields are undefined, please check request body: " + JSON.stringify(request.body);
+            console.warn(errMessage);
+
+            response.status(401).send({
+                error: errMessage
+            });
+            return;
+        }
+
+        console.log("Body is correct, updating answer likes for answer", answerID, "with user", username);
+
+
+        const updateRes = await db.collection('prompts').doc(promptID).collection('answers').doc(answerID).update({
+            likes: admin.firestore.FieldValue.arrayRemove(username)
+        });
+
+        console.log(updateRes);
+        console.log("Success update! Finished");
+        
+        response.status(200).send({
+            success: true
+        });
+        return;
+
+    } catch (err) {
+        console.error("Could not unlike answer:")
+        console.error(err);
+
+        response.status(404).send({
+            error: err
+        });
+        return;
+    }
+});
+
+
+
+
+
+exports.createPrompt = functions.https.onRequest(async (request, response) => {
+    try {
+        const prompt = request.body.prompt;
+        const startTime = request.body.startTime;
+        const endTime = request.body.endTime;
+
+        console.log("Validating response body to insert prompt");
+
+        if(prompt == null || startTime == null || endTime == null) {
+            const errMessage = "One of more fields are undefined, please check request body: " + JSON.stringify(request.body);
+            console.warn(errMessage);
+
+            response.status(401).send({
+                error: errMessage
+            });
+            return;
+        }
+
+        console.log("Body is correct, inserting prompt:", prompt);
+
+        let startTimestamp = new Date(startTime * 1000);
+        let endTimestamp = new Date(endTime * 1000);
+
+        let insertParams = {
+            prompt: prompt,
+            startTime: startTimestamp,
+            endTime: endTimestamp,
+        };
+
+        const insertRes = await db.collection('prompts').add(insertParams);
+
+        console.log("Success insert! fetching inserted prompt and returning now.");
+
+        const fetchInsertedPrompt = await insertRes.get();
+
+        let ret = {
+            promptID: fetchInsertedPrompt.id,
+            prompt: fetchInsertedPrompt.data().prompt,
+            startTime: fetchInsertedPrompt.data().startTime._seconds,
+            endTime: fetchInsertedPrompt.data().endTime._seconds,
+            answers: []
+        }
+
+        console.log(ret);
+        console.log("Finished!");
+        
+        response.status(200).send(ret);
+        return;
+
+    } catch (err) {
+        console.error("Could not add prompt:")
         console.error(err);
 
         response.status(404).send({

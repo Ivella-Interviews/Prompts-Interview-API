@@ -10,11 +10,12 @@ All times are returned in epoch time (in seconds)
 * [Fetch Prompts and Answers](#fetch-prompts)
 * [Post Answer](#post-answer)
 * [Like Answer](#like-answer)
+* [Unlike Answer](#unlike-answer)
 
 
 # Fetch Prompts
 
-This endpoint fetches all the questions and their associated answers\
+This endpoint fetches all the prompts and their associated answers\
 `GET /prompts`
 
 **Success Code**: \
@@ -27,9 +28,9 @@ This endpoint fetches all the questions and their associated answers\
 
 ```json
 {
-    "questions": [
+    "prompts": [
         {
-            "questionID": "8jvtduGXNJu8QAylgjfe",
+            "promptID": "8jvtduGXNJu8QAylgjfe",
             "startTime": 1669708800,
             "endTime": 1669795200,
             "prompt": "What is your ideal first date?",
@@ -62,7 +63,7 @@ This endpoint fetches all the questions and their associated answers\
 
 # Post Answer
 
-This endpoint is used to post an answer to a question\
+This endpoint is used to post an answer to a prompt\
 `POST /answer`
 
 **Success Code**: \
@@ -77,7 +78,7 @@ This endpoint is used to post an answer to a question\
 {
     "username": "ericjubber",
     "answer": "My ideal first date is getting ice cream and going on walk on the beach!",
-    "questionID": "8jvtduGXNJu8QAylgjfe"
+    "promptID": "8jvtduGXNJu8QAylgjfe"
 }
 ```
 
@@ -96,7 +97,7 @@ This endpoint is used to post an answer to a question\
 
 # Like Answer
 
-This endpoint is used to like an answer to a question\
+This endpoint is used to like an answer to a prompt\
 `POST /likeAnswer`
 
 **Success Code**: \
@@ -111,7 +112,7 @@ This endpoint is used to like an answer to a question\
 {
     "username": "ericjubber",
     "answerID": "yBvsqFM0UbTiNysGVVZS",
-    "questionID": "8jvtduGXNJu8QAylgjfe"
+    "promptID": "8jvtduGXNJu8QAylgjfe"
 }
 ```
 
@@ -122,3 +123,67 @@ This endpoint is used to like an answer to a question\
 }
 ```
 
+
+
+
+# Unlike Answer
+
+This endpoint is used to unlike an answer to a prompt\
+`POST /unlikeAnswer`
+
+**Success Code**: \
+`200 Success`
+
+**Error Codes**: \
+`401 Request body incomplete/invalid`\
+`404 Error completing database request occurred`\
+
+**Example Query Body**
+```json
+{
+    "username": "ericjubber",
+    "answerID": "yBvsqFM0UbTiNysGVVZS",
+    "promptID": "8jvtduGXNJu8QAylgjfe"
+}
+```
+
+**Query Response**
+```json
+{
+    "success": true
+}
+```
+
+
+
+# Post Prompt
+
+This endpoint is used to post a prompt\
+`POST /askPrompt`
+
+**Success Code**: \
+`200 Success`
+
+**Error Codes**: \
+`401 Request body incomplete/invalid`\
+`404 Error completing database request occurred`\
+
+**Example Query Body**
+```json
+{
+    "prompt": "What is your ideal first date?",
+    "startTime": 1669708800,
+    "endTime": 1669795200
+}
+```
+
+**Query Response**
+```json
+{
+    "promptID": "8jvtduGXNJu8QAylgjfe",
+    "startTime": 1669708800,
+    "endTime": 1669795200,
+    "prompt": "What is your ideal first date?",
+    "answers": []
+}
+```
